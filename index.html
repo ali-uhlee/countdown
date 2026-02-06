@@ -84,6 +84,31 @@ html, body {
   background: #4facfe;
   color: #000;
 }
+
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  top: -10px;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); }
+}
+
+.end {
+  animation: endReveal 1.2s ease forwards;
+}
+
+@keyframes endReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.frozen {
+  opacity: 0.6;
+}
 </style>
 </head>
 
@@ -137,10 +162,10 @@ function confetti(n=40) {
 }
 
 function update() {
-  const now = nowSafe();
+  const now = nowSafe().getTime();
 
   if (now >= end) {
-    document.body.innerHTML = "<h1>📞 Call today?</h1>";
+    document.body.innerHTML = "<h1 class='end'>📞 Call today?</h1>";
     confetti(120);
     return;
   }
@@ -157,18 +182,28 @@ function update() {
 setInterval(update,1000);
 update();
 
-/* DEV MODE UNLOCK */
-let taps=0, firstTap=0;
-title.onclick=()=>{
-  const t=Date.now();
-  if (!firstTap) firstTap=t;
-  if (t-firstTap>5000){taps=0;firstTap=t;}
-  if (++taps===7) enableDev();
-};
+/* DEV MODE UNLOCK: HOLD TITLE 10 SECONDS */
+const title = document.getElementById("title");
+let pressTimer;
+title.addEventListener("touchstart", startPress);
+title.addEventListener("mousedown", startPress);
+title.addEventListener("touchend", cancelPress);
+title.addEventListener("mouseup", cancelPress);
+title.addEventListener("mouseleave", cancelPress);
 
-function enableDev(){
-  devMode=true;
-  const d=document.createElement("div");
+function startPress(e) {
+  e.preventDefault();
+  pressTimer = setTimeout(enableDev, 10000);
+}
+
+function cancelPress() {
+  clearTimeout(pressTimer);
+}
+
+function enableDev() {
+  if (devMode) return;
+  devMode = true;
+  const d = document.createElement("div");
   d.className="dev";
   d.innerHTML=`
     <div>DEV MODE</div>
@@ -180,7 +215,7 @@ function enableDev(){
   document.body.appendChild(d);
 }
 
-function exitDev(){
+function exitDev() {
   devOffset=0;
   location.reload();
 }
