@@ -1,6 +1,6 @@
 {
-  "name": "Feb 3 2028 Countdown",
-  "short_name": "Countdown",
+  "name": "Countdown",
+  "short_name": "Call",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#1e3c72",
