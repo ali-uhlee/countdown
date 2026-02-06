@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Countdown</title>
+
+  <!-- PWA support -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#1e3c72" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    /* FULL SCREEN GRADIENT */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body {
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 380px;
+      background: rgba(0,0,0,0.35);
+      padding: 24px;
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .stats {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-bottom: 10px;
+    }
+
+    .progress-wrapper {
+      height: 10px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #00f2fe, #4facfe);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 14px 0;
+    }
+
+    .num {
+      font-size: 2.2rem;
+      font-weight: bold;
+    }
+
+    .label {
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+    }
+
+    .celebrate {
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .confetti {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      top: -10px;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    @media (min-width: 768px) {
+      .container { max-width: 600px; }
+      .countdown { grid-template-columns: repeat(4,1fr); }
+      .num { font-size: 3rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" id="container">
+    <h1>Countdown</h1>
+    <div class="stats" id="stats"></div>
+
+    <div class="progress-wrapper">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <div class="countdown">
+      <div class="box"><div class="num" id="days">0</div><div class="label">DAYS</div></div>
+      <div class="box"><div class="num" id="hours">0</div><div class="label">HOURS</div></div>
+      <div class="box"><div class="num" id="minutes">0</div><div class="label">MINUTES</div></div>
+      <div class="box"><div class="num" id="seconds">0</div><div class="label">SECONDS</div></div>
+    </div>
+  </div>
+
+<script>
+  // STRICT EST
+  function getESTNow() {
+    return new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+    ).getTime();
+  }
+
+  const startDate = new Date("February 3, 2026 00:00:00 EST").getTime();
+  const endDate   = new Date("February 3, 2028 00:00:00 EST").getTime();
+  const totalDays = Math.round((endDate - startDate) / 86400000);
+
+  function update() {
+    const now = getESTNow();
+    const diff = endDate - now;
+
+    if (diff <= 0) {
+      document.getElementById("container").innerHTML =
+        "<h1 class='celebrate'>🎉 It’s February 3, 2028! 🎉</h1>";
+      confetti();
+      return;
+    }
+
+    document.getElementById("days").textContent = Math.floor(diff / 86400000);
+    document.getElementById("hours").textContent = Math.floor(diff / 3600000) % 24;
+    document.getElementById("minutes").textContent = Math.floor(diff / 60000) % 60;
+    document.getElementById("seconds").textContent = Math.floor(diff / 1000) % 60;
+
+    const elapsedDays = Math.max(Math.floor((now - startDate) / 86400000), 0);
+    const percent = Math.min((elapsedDays / totalDays) * 100, 100);
+
+    document.getElementById("stats").textContent =
+      `${elapsedDays} / ${totalDays} days elapsed • ${percent.toFixed(2)}% complete`;
+
+    document.getElementById("progress").style.width = percent + "%";
+  }
+
+  function confetti() {
+    for (let i = 0; i < 120; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
+      c.style.animationDuration = 2 + Math.random() * 3 + "s";
+      document.body.appendChild(c);
+    }
+  }
+
+  update();
+  setInterval(update, 1000);
+
+  // SERVICE WORKER FOR PWA
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+  }
+</script>
+</body>
+</html>
