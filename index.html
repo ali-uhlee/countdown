@@ -19,8 +19,8 @@ html, body {
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   color: white;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .container {
@@ -31,16 +31,6 @@ html, body {
   border-radius: 18px;
   text-align: center;
   transition: transform 0.6s ease, box-shadow 0.6s ease;
-}
-
-.pulse {
-  animation: pulse 1.5s ease;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
-  50% { transform: scale(1.03); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
-  100% { transform: scale(1); }
 }
 
 .progress-wrapper {
@@ -56,15 +46,6 @@ html, body {
   background: linear-gradient(90deg, #00f2fe, #4facfe);
   width: 0%;
   transition: width 0.3s linear;
-}
-
-.flash {
-  animation: flash 0.6s ease;
-}
-
-@keyframes flash {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.4; }
 }
 
 .countdown {
@@ -83,9 +64,13 @@ html, body {
 .label { font-size: 0.7rem; letter-spacing: 1px; }
 
 .message {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 0.85rem;
   opacity: 0.9;
+}
+
+.frozen {
+  opacity: 0.6;
 }
 
 .end {
@@ -130,15 +115,20 @@ html, body {
 
 <script>
 function estNow() {
-  return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));
+  return new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+  );
 }
 
 const start = new Date("February 3, 2026 00:00:00 EST");
 const end = new Date("February 3, 2028 00:00:00 EST");
-const oneYear = new Date("February 3, 2027 00:00:00 EST");
 
-function confetti(light=true) {
-  const count = light ? 40 : 120;
+let lastClock = estNow().getTime();
+let lastPerf = performance.now();
+let freeze = false;
+let stableTime = 0;
+
+function confetti(count=40) {
   for (let i=0;i<count;i++) {
     const c=document.createElement("div");
     c.className="confetti";
@@ -149,9 +139,19 @@ function confetti(light=true) {
   }
 }
 
-function vibrate() {
-  if (navigator.vibrate) navigator.vibrate([40,30,40]);
-}
-
 function update() {
-  const no
+  const now = estNow().getTime();
+  const perf = performance.now();
+
+  const clockDelta = now - lastClock;
+  const perfDelta = perf - lastPerf;
+
+  lastClock = now;
+  lastPerf = perf;
+
+  // Detect tampering
+  if (
+    clockDelta < -5000 ||
+    Math.abs(clockDelta - perfDelta) > 60000
+  ) {
+    f
