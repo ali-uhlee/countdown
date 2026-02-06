@@ -1,196 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Countdown</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1e3c72" />
-  <link rel="apple-touch-icon" href="icon.png" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="theme-color" content="#1e3c72">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: system-ui, sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-    .container {
-      width: 90%;
-      max-width: 380px;
-      background: rgba(0,0,0,0.35);
-      padding: 24px;
-      border-radius: 18px;
-      text-align: center;
-    }
+.container {
+  width: 90%;
+  max-width: 380px;
+  background: rgba(0,0,0,0.35);
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+}
 
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 6px;
-    }
+.pulse {
+  animation: pulse 1.5s ease;
+}
 
-    .stats {
-      font-size: 0.85rem;
-      opacity: 0.85;
-      margin-bottom: 10px;
-    }
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50% { transform: scale(1.03); box-shadow: 0 0 30px rgba(255,255,255,0.4); }
+  100% { transform: scale(1); }
+}
 
-    .progress-wrapper {
-      height: 10px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 18px;
-    }
+.progress-wrapper {
+  height: 10px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+}
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #00f2fe, #4facfe);
-      width: 0%;
-      transition: width 0.3s linear;
-    }
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00f2fe, #4facfe);
+  width: 0%;
+  transition: width 0.3s linear;
+}
 
-    .countdown {
-      display: grid;
-      grid-template-columns: repeat(2,1fr);
-      gap: 14px;
-    }
+.flash {
+  animation: flash 0.6s ease;
+}
 
-    .box {
-      background: rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 14px 0;
-    }
+@keyframes flash {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
 
-    .num {
-      font-size: 2.2rem;
-      font-weight: bold;
-    }
+.countdown {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
 
-    .label {
-      font-size: 0.7rem;
-      letter-spacing: 1px;
-    }
+.box {
+  background: rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 14px 0;
+}
 
-    .celebrate {
-      animation: pulse 1.2s infinite;
-    }
+.num { font-size: 2.2rem; font-weight: bold; }
+.label { font-size: 0.7rem; letter-spacing: 1px; }
 
-    @keyframes pulse {
-      0%,100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
+.message {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
 
-    .confetti {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      top: -10px;
-      animation: fall linear infinite;
-    }
+.end {
+  animation: endReveal 1.2s ease forwards;
+}
 
-    @keyframes fall {
-      to { transform: translateY(110vh) rotate(360deg); }
-    }
+@keyframes endReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    @media (min-width: 768px) {
-      .container { max-width: 600px; }
-      .countdown { grid-template-columns: repeat(4,1fr); }
-      .num { font-size: 3rem; }
-    }
-  </style>
+.confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  top: -10px;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh) rotate(360deg); }
+}
+</style>
 </head>
 
 <body>
-  <div class="container" id="container">
-    <h1>Countdown</h1>
-    <div class="stats" id="stats"></div>
+<div class="container" id="container">
+  <h1>Countdown</h1>
+  <div class="message" id="message"></div>
 
-    <div class="progress-wrapper">
-      <div class="progress-bar" id="progress"></div>
-    </div>
-
-    <div class="countdown">
-      <div class="box"><div class="num" id="days">0</div><div class="label">DAYS</div></div>
-      <div class="box"><div class="num" id="hours">0</div><div class="label">HOURS</div></div>
-      <div class="box"><div class="num" id="minutes">0</div><div class="label">MINUTES</div></div>
-      <div class="box"><div class="num" id="seconds">0</div><div class="label">SECONDS</div></div>
-    </div>
+  <div class="progress-wrapper">
+    <div class="progress-bar" id="progress"></div>
   </div>
 
+  <div class="countdown">
+    <div class="box"><div class="num" id="days">0</div><div class="label">DAYS</div></div>
+    <div class="box"><div class="num" id="hours">0</div><div class="label">HOURS</div></div>
+    <div class="box"><div class="num" id="minutes">0</div><div class="label">MINUTES</div></div>
+    <div class="box"><div class="num" id="seconds">0</div><div class="label">SECONDS</div></div>
+  </div>
+</div>
+
 <script>
-  // STRICT EST TIME
-  function getESTNow() {
-    return new Date(
-      new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
-    ).getTime();
+function estNow() {
+  return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));
+}
+
+const start = new Date("February 3, 2026 00:00:00 EST");
+const end = new Date("February 3, 2028 00:00:00 EST");
+const oneYear = new Date("February 3, 2027 00:00:00 EST");
+
+function confetti(light=true) {
+  const count = light ? 40 : 120;
+  for (let i=0;i<count;i++) {
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.backgroundColor=`hsl(${Math.random()*360},100%,50%)`;
+    c.style.animationDuration=(2+Math.random()*2)+"s";
+    document.body.appendChild(c);
   }
+}
 
-  const startDate = new Date("February 3, 2026 00:00:00 EST").getTime();
-  const endDate   = new Date("February 3, 2028 00:00:00 EST").getTime();
-  const totalDuration = endDate - startDate;
+function vibrate() {
+  if (navigator.vibrate) navigator.vibrate([40,30,40]);
+}
 
-  function update() {
-    const now = getESTNow();
-    const remaining = endDate - now;
-
-    if (remaining <= 0) {
-      document.getElementById("container").innerHTML =
-        "<h1 class='celebrate'>📞 Call today?</h1>";
-      confetti();
-      return;
-    }
-
-    document.getElementById("days").textContent =
-      Math.floor(remaining / 86400000);
-    document.getElementById("hours").textContent =
-      Math.floor(remaining / 3600000) % 24;
-    document.getElementById("minutes").textContent =
-      Math.floor(remaining / 60000) % 60;
-    document.getElementById("seconds").textContent =
-      Math.floor(remaining / 1000) % 60;
-
-    // LIVE percentage (not daily)
-    const elapsed = Math.max(now - startDate, 0);
-    const percent = Math.min((elapsed / totalDuration) * 100, 100);
-
-    const elapsedDays = elapsed / 86400000;
-    const totalDays = totalDuration / 86400000;
-
-    document.getElementById("stats").textContent =
-      `${elapsedDays.toFixed(2)} / ${totalDays.toFixed(2)} days elapsed • ${percent.toFixed(2)}% complete`;
-
-    document.getElementById("progress").style.width = percent + "%";
-  }
-
-  function confetti() {
-    for (let i = 0; i < 120; i++) {
-      const c = document.createElement("div");
-      c.className = "confetti";
-      c.style.left = Math.random() * 100 + "vw";
-      c.style.backgroundColor = `hsl(${Math.random()*360},100%,50%)`;
-      c.style.animationDuration = 2 + Math.random() * 3 + "s";
-      document.body.appendChild(c);
-    }
-  }
-
-  update();
-  setInterval(update, 1000);
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-  }
-</script>
-</body>
-</html>
+function update() {
+  const no
