@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Countdown</title>
 
-  <!-- PWA support -->
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#1e3c72" />
   <link rel="apple-touch-icon" href="icon.png" />
@@ -13,7 +13,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
-    /* FULL SCREEN GRADIENT */
     html, body {
       margin: 0;
       padding: 0;
@@ -25,11 +24,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    body {
-      min-height: 100vh;
-      box-sizing: border-box;
     }
 
     .container {
@@ -64,12 +58,12 @@
       height: 100%;
       background: linear-gradient(90deg, #00f2fe, #4facfe);
       width: 0%;
-      transition: width 0.5s ease;
+      transition: width 0.3s linear;
     }
 
     .countdown {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2,1fr);
       gap: 14px;
     }
 
@@ -136,7 +130,7 @@
   </div>
 
 <script>
-  // STRICT EST
+  // STRICT EST TIME
   function getESTNow() {
     return new Date(
       new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
@@ -145,29 +139,37 @@
 
   const startDate = new Date("February 3, 2026 00:00:00 EST").getTime();
   const endDate   = new Date("February 3, 2028 00:00:00 EST").getTime();
-  const totalDays = Math.round((endDate - startDate) / 86400000);
+  const totalDuration = endDate - startDate;
 
   function update() {
     const now = getESTNow();
-    const diff = endDate - now;
+    const remaining = endDate - now;
 
-    if (diff <= 0) {
+    if (remaining <= 0) {
       document.getElementById("container").innerHTML =
-        "<h1 class='celebrate'>🎉 It’s February 3, 2028! 🎉</h1>";
+        "<h1 class='celebrate'>📞 Call today?</h1>";
       confetti();
       return;
     }
 
-    document.getElementById("days").textContent = Math.floor(diff / 86400000);
-    document.getElementById("hours").textContent = Math.floor(diff / 3600000) % 24;
-    document.getElementById("minutes").textContent = Math.floor(diff / 60000) % 60;
-    document.getElementById("seconds").textContent = Math.floor(diff / 1000) % 60;
+    document.getElementById("days").textContent =
+      Math.floor(remaining / 86400000);
+    document.getElementById("hours").textContent =
+      Math.floor(remaining / 3600000) % 24;
+    document.getElementById("minutes").textContent =
+      Math.floor(remaining / 60000) % 60;
+    document.getElementById("seconds").textContent =
+      Math.floor(remaining / 1000) % 60;
 
-    const elapsedDays = Math.max(Math.floor((now - startDate) / 86400000), 0);
-    const percent = Math.min((elapsedDays / totalDays) * 100, 100);
+    // LIVE percentage (not daily)
+    const elapsed = Math.max(now - startDate, 0);
+    const percent = Math.min((elapsed / totalDuration) * 100, 100);
+
+    const elapsedDays = elapsed / 86400000;
+    const totalDays = totalDuration / 86400000;
 
     document.getElementById("stats").textContent =
-      `${elapsedDays} / ${totalDays} days elapsed • ${percent.toFixed(2)}% complete`;
+      `${elapsedDays.toFixed(2)} / ${totalDays.toFixed(2)} days elapsed • ${percent.toFixed(2)}% complete`;
 
     document.getElementById("progress").style.width = percent + "%";
   }
@@ -186,7 +188,6 @@
   update();
   setInterval(update, 1000);
 
-  // SERVICE WORKER FOR PWA
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");
   }
